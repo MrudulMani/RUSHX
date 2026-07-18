@@ -415,12 +415,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let pointerStartX = 0;
     let pointerStartY = 0;
 
-    container.addEventListener('pointerdown', (e) => {
+    // Attach listeners directly to the canvas (renderer.domElement) to bypass OrbitControls event consumption on mobile
+    renderer.domElement.addEventListener('pointerdown', (e) => {
       pointerStartX = e.clientX;
       pointerStartY = e.clientY;
     });
 
-    container.addEventListener('click', (e) => {
+    renderer.domElement.addEventListener('pointerup', (e) => {
       const deltaX = e.clientX - pointerStartX;
       const deltaY = e.clientY - pointerStartY;
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -454,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Trigger state checks (PointerMove hovers on desktop only)
-    container.addEventListener('pointermove', (e) => {
+    renderer.domElement.addEventListener('pointermove', (e) => {
       if (e.pointerType === 'touch') return; // Ignore fake hover movements triggered on mobile touchscreens
 
       const rect = renderer.domElement.getBoundingClientRect();
