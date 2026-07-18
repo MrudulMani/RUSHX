@@ -453,8 +453,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Trigger state checks (MouseMove hovers on desktop)
-    container.addEventListener('mousemove', (e) => {
+    // Trigger state checks (PointerMove hovers on desktop only)
+    container.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return; // Ignore fake hover movements triggered on mobile touchscreens
+
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
