@@ -415,74 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let pointerStartX = 0;
     let pointerStartY = 0;
 
-    // Attach listeners directly to the canvas (renderer.domElement) to bypass OrbitControls event consumption on mobile
-    renderer.domElement.addEventListener('pointerdown', (e) => {
-      pointerStartX = e.clientX;
-      pointerStartY = e.clientY;
-    });
-
-    renderer.domElement.addEventListener('pointerup', (e) => {
-      const deltaX = e.clientX - pointerStartX;
-      const deltaY = e.clientY - pointerStartY;
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      
-      // Filter out drags (rotation/zooms)
-      if (distance > 8) return;
-
-      if (gsap.isTweening(camera.position)) return;
-
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(interactiveMeshes);
-
-      if (intersects.length > 0) {
-        const clickedMesh = intersects[0].object;
-        const key = clickedMesh.userData.muscleGroup;
-
-        if (selectedMuscleKey !== key) {
-          selectedMuscleKey = key;
-          zoomToMuscle(key, clickedMesh);
-          activateMuscleHUD(key, clickedMesh); // Force activate panel on click (essential for mobile tap)
-        } else {
-          resetSceneState();
-        }
-      } else {
-        resetSceneState();
-      }
-    });
-
-    // Trigger state checks (PointerMove hovers on desktop only)
-    renderer.domElement.addEventListener('pointermove', (e) => {
-      if (e.pointerType === 'touch') return; // Ignore fake hover movements triggered on mobile touchscreens
-
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(interactiveMeshes);
-
-      if (intersects.length > 0) {
-        const hitMesh = intersects[0].object;
-        const key = hitMesh.userData.muscleGroup;
-
-        container.style.cursor = 'pointer';
-
-        if (hoveredMuscleKey !== key) {
-          deactivateMuscleHUD();
-          hoveredMuscleKey = key;
-          activateMuscleHUD(key, hitMesh);
-        }
-      } else {
-        container.style.cursor = 'grab';
-        deactivateMuscleHUD();
-        hoveredMuscleKey = null;
-      }
-    });
-
     function activateMuscleHUD(key, hitMesh) {
       // 1. Set tracked mesh target for leader line projection
       chestMeshRef = hitMesh;
@@ -723,6 +655,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize 3D Engine
     init3D();
+
+    // Attach listeners directly to the canvas (renderer.domElement) to bypass OrbitControls event consumption on mobile
+    renderer.domElement.addEventListener('pointerdown', (e) => {
+      pointerStartX = e.clientX;
+      pointerStartY = e.clientY;
+    });
+
+    renderer.domElement.addEventListener('pointerup', (e) => {
+      const deltaX = e.clientX - pointerStartX;
+      const deltaY = e.clientY - pointerStartY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      // Filter out drags (rotation/zooms)
+      if (distance > 8) return;
+
+      if (gsap.isTweening(camera.position)) return;
+
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(interactiveMeshes);
+
+      if (intersects.length > 0) {
+        const clickedMesh = intersects[0].object;
+        const key = clickedMesh.userData.muscleGroup;
+
+        if (selectedMuscleKey !== key) {
+          selectedMuscleKey = key;
+          zoomToMuscle(key, clickedMesh);
+          activateMuscleHUD(key, clickedMesh); // Force activate panel on click (essential for mobile tap)
+        } else {
+          resetSceneState();
+        }
+      } else {
+        resetSceneState();
+      }
+    });
+
+    // Trigger state checks (PointerMove hovers on desktop only)
+    renderer.domElement.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return; // Ignore fake hover movements triggered on mobile touchscreens
+
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(interactiveMeshes);
+
+      if (intersects.length > 0) {
+        const hitMesh = intersects[0].object;
+        const key = hitMesh.userData.muscleGroup;
+
+        container.style.cursor = 'pointer';
+
+        if (hoveredMuscleKey !== key) {
+          deactivateMuscleHUD();
+          hoveredMuscleKey = key;
+          activateMuscleHUD(key, hitMesh);
+        }
+      } else {
+        container.style.cursor = 'grab';
+        deactivateMuscleHUD();
+        hoveredMuscleKey = null;
+      }
+    });
   }
 
   /* ==========================================================================
